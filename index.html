@@ -1770,21 +1770,16 @@
                 toggleFullscreen();
             });
 
-            function toggleFullscreen() {
-                if (document.fullscreenElement || document.webkitFullscreenElement) {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                } else {
-                    const el = playerContainer;
-                    if (el.requestFullscreen) {
-                        el.requestFullscreen();
-                    } else if (el.webkitRequestFullscreen) {
-                        el.webkitRequestFullscreen();
-                    }
-                }
+            async function toggleFullscreen() {
+                const shell = $('player-shell');
+            if (!document.fullscreenElement) {
+                shell.requestFullscreen?.() || shell.webkitRequestFullscreen?.();
+            } else {
+                document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+            }
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+            }
             }
 
             document.addEventListener('fullscreenchange', updateFullscreenIcon);
@@ -2028,7 +2023,7 @@
 
                 const observer = new MutationObserver(() => {
                     if (watchView.classList.contains('active')) {
-                        checkOrientation();
+                        removeOrientationOverlay();
                     } else {
                         removeOrientationOverlay();
                     }
